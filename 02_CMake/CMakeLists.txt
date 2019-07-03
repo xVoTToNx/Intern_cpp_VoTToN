@@ -1,0 +1,5 @@
+cmake_minimum_required(VERSION 3.12)
+project( CMake )
+include_directories("files")
+add_subdirectory(files)
+add_executable( CMake  files/main.cpp)
