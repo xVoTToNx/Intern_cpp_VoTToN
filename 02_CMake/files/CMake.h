@@ -26,4 +26,5 @@ public:
 	bool Remove(const string& key);
 	jvalue GetMinValue();
 	jvalue GetMaxValue();
+	string Dump() {return data.dump(); }
 };
