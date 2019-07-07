@@ -1,0 +1,5 @@
+cmake_minimum_required(VERSION 3.12)
+project( Func )
+include_directories("files")
+add_subdirectory(files)
+add_executable( Func files/main.cpp)
