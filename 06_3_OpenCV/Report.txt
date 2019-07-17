@@ -1,0 +1,49 @@
+Report:
+Object file: src.jpg
+Scene file: dst.jpg
+
+SURF:
+
+Total object | scene keypoints: 819 | 725
+"Good" matches: 79
+Keypoints, which belongs to object in scene: 37 ( 46.83% )
+Execution time:
+4 sec.
+
+
+KAZE:
+
+Total object | scene keypoints: 958 | 1157
+"Good" matches: 86
+Keypoints, which belongs to object in scene: 64 ( 74.41% )
+Execution time:
+18 sec.
+
+
+ORB:
+
+Total object | scene keypoints: 988 | 1000
+"Good" matches: 43
+Keypoints, which belongs to object in scene: 35 ( 81.39% )
+Execution time:
+0 sec.
+
+
+AKAZE:
+
+Total object | scene keypoints: 609 | 900
+"Good" matches: 61
+Keypoints, which belongs to object in scene: 53 ( 86.88% )
+Execution time:
+1 sec.
+
+
+BRISK:
+
+Total object | scene keypoints: 2111 | 3860
+"Good" matches: 71
+Keypoints, which belongs to object in scene: 63 ( 88.73% )
+Execution time:
+9 sec.
+
+
