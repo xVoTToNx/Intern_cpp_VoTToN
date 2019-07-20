@@ -1,0 +1,13 @@
+Using platform: Intel(R) OpenCL
+Using device: Intel(R) Core(TM) i3-7100U CPU @ 2.40GHz
+For 512 elements:
+CPU time: 1 milliseconds.
+GPU time: 16 milliseconds.
+
+For 1024 elements:
+CPU time: 0 milliseconds.
+GPU time: 13 milliseconds.
+
+For 131072 elements:
+CPU time: 138 milliseconds.
+GPU time: 9 milliseconds.
