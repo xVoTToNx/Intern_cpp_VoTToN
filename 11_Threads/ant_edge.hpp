@@ -1,13 +1,13 @@
 #pragma once
-/*void d(int i) {
-	std::cout << i << std::endl;
-}
-float rounDD(float var)
-{
-	float value = (int)(var * 10 + .5);
-	return (float)value / 10;
-}*/
+
 namespace aa {
+
+	enum AntAlgorithm
+	{
+		PHERO,
+		FULL,
+		LENGTH
+	};
 
 	template<typename LengthType, typename PheromoneType>
 	class AntEdge

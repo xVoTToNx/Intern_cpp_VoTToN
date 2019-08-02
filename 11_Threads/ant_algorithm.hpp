@@ -13,15 +13,14 @@ namespace aa {
 
 	template<typename LengthType = int, typename PheromoneType = float>
 	void RunAnt(aa::Ant<LengthType, PheromoneType>* ant,
-		std::vector<std::vector<aa::AntEdge<LengthType, PheromoneType>>> const& graph)
+		std::vector<std::vector<aa::AntEdge<LengthType, PheromoneType>>> const& graph,
+		AntAlgorithm mod)
 	{
 		while (true)
 		{
 			std::vector<aa::AntEdge<LengthType, PheromoneType>> possiblePaths;
 			PheromoneType pheromoneSum = 0;
-
-			//std::cout << "\nPheromones\n[ ";
-
+			LengthType lengthSum = 0;
 
 			std::default_random_engine eng((std::random_device())());
 
@@ -36,24 +35,14 @@ namespace aa {
 
 					if (it == antPath.end())
 					{
-						//std::cout << possibleEdge.Pheromone() << ", ";
 						possiblePaths.push_back(possibleEdge);
 						pheromoneSum += possibleEdge.Pheromone();
+						lengthSum += possibleEdge.Length();
 					}
 				}
 			}
 
-			/*std::cout << "\b\b ]" << std::endl;
 
-			std::cout << "\nPheroSum: " << pheromoneSum << std::endl;
-
-			std::cout << "\nPossiblePath\n[ ";
-			for (int i = 0; i < possiblePaths.size(); ++i)
-			{
-				std::cout << possiblePaths[i].Index() << ", ";
-			}
-			std::cout << "\b\b ]" << std::endl;
-			*/
 			std::uniform_real_distribution<float> random(0, 1.0);
 			float randNum = random(eng);
 
@@ -73,20 +62,37 @@ namespace aa {
 			// chanceForThisPath == 0,4
 			// chanceBuffer = 0.4 + 0.3 = 0.7
 			// RandNum < chanceBuffer, moveTo(thisPath)
-			  ////std::cout << "\nRandNum:\n" << randNum << std::endl;
-			  ////std::cout << "\nChances:\n[ ";
+
+
 			int chosen = -1;
 			for (auto i = possiblePaths.begin(); i != possiblePaths.end(); ++i)
 			{
 				std::vector<LengthType> antPath = ant->Path();
-
 				float chanceForThisPath;
-				if (pheromoneSum != 0)
-					chanceForThisPath = i->Pheromone() / pheromoneSum;
-				else
-					chanceForThisPath = 1.0 / possiblePaths.size();
-				chanceStack += chanceForThisPath;
-				//std::cout << chanceForThisPath << ", ";
+				switch (mod)
+				{
+				case AntAlgorithm::PHERO:
+						if (pheromoneSum != 0)
+							chanceForThisPath = float(i->Pheromone()) / pheromoneSum;
+						else
+							chanceForThisPath = float(1.0) / possiblePaths.size();
+						chanceStack += chanceForThisPath;
+						break;
+
+				case AntAlgorithm::LENGTH:
+					chanceForThisPath = float(i->Length()) / lengthSum;
+					chanceStack += chanceForThisPath;
+					break;
+
+				case AntAlgorithm::FULL:
+					if (pheromoneSum != 0)
+						chanceForThisPath = float(i->Pheromone()) * i->Length() / (lengthSum + pheromoneSum);
+					else
+						chanceForThisPath = float(i->Length()) / lengthSum;
+					chanceStack += chanceForThisPath;
+					break;
+				}
+
 				if (randNum < chanceStack)
 				{
 					chosen = i->Index();
@@ -96,21 +102,7 @@ namespace aa {
 				}
 
 			}
-			/*std::cout << "\b\b ]" << std::endl;
-			std::cout << "\nChosen: " << chosen;
-			std::cout << "\nHas moved?" << std::endl;
-			if(hasMoved)
-			std::cout << "Yes" << std::endl;
-			else
-				std::cout << "No" << std::endl;
-*/
-			/*std::cout << "\nPath\n[ ";
-			for (int i = 0; i < ant->Path().size(); ++i)
-			{
-				std::cout << ant->Path()[i] << ", ";
-			}
-			std::cout << "\b\b ]" << std::endl;
-			*/
+
 			if (ant->isArrived())
 			{
 				return;
@@ -123,7 +115,8 @@ namespace aa {
 		matrix(LengthType) const& lengthMatrix, 
 		matrix(PheromoneType) const& pheromoneMatrix,
 		int  const& startIndex, int  const& destinationIndex, 
-		double vaporizeCoef = 0.5, int const& antsNumber = 2, int const& runsNumber = 100)
+		double vaporizeCoef = 0.5, int const& antsNumber = 2, int const& runsNumber = 100,
+		AntAlgorithm mod = AntAlgorithm::PHERO)
 	{
 		// Single matrix for length and pheromone
 		std::vector<std::vector<AntEdge<LengthType, PheromoneType>>> graph;
@@ -152,13 +145,14 @@ namespace aa {
 			// Start all ants;
 			for (auto i = ants.begin(); i != ants.end(); ++i)
 			{
-				threads.push_back(std::thread(RunAnt<LengthType, PheromoneType>, &(*i), graph));
+				threads.push_back(std::thread(RunAnt<LengthType, PheromoneType>, &(*i), graph, mod));
 			}
 
 			// Wait until everyone has finished;
 			for (int i = 0; i < antsNumber; ++i)
 			{
 				threads[i].join();
+
 			}
 
 			threads.clear();
@@ -167,14 +161,7 @@ namespace aa {
 			for (auto i = ants.begin(); i != ants.end(); ++i)
 			{
 				std::vector<LengthType> antPath = i->Path();
-				/*std::cout << "\nPathFINALL\n[ ";
-				for (int i = 0; i < antPath.size(); ++i)
-				{
-					std::cout << antPath[i] << ", ";
-				}
-				std::cout << "\b\b ]" << std::endl;
-				*/
-				//std::cin.get();
+
 				PheromoneType deltaPheromone = 1.0 / i->PathLength();
 
 
@@ -197,18 +184,7 @@ namespace aa {
 
 				i->Reset();
 			}
-			/*for (int i = 0; i < 5; ++i)
-			{
-				std::cout << std::endl;
-				for (int j = 0; j < 5; ++j)
-				{
-					std::cout << rounDD(graph[i][j].Pheromone()) << "             ";
-				}
-			}
-			std::cout << std::endl;
-			*/
 			++currentRun;
-			//d(currentRun);
 		}
 
 		return bestPath;
